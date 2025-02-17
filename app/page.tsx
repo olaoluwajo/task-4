@@ -1,101 +1,86 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import React, { useState, useEffect, useRef } from "react";
+import { useChat } from "./hooks/use-chat";
+import { ThemeToggle } from "./components/ui/theme-toggle";
+import { Message } from "./components/chat/chat-container";
+import { MessageInput } from "./components/chat/message-input";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+export default function App() {
+	const [inputValue, setInputValue] = useState("");
+	const {
+		messages,
+		isLoading,
+		error,
+		sendMessage,
+		translateMessage,
+		summarizeMessage,
+	} = useChat();
+
+	const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [messages]);
+
+	const handleSendMessage = async () => {
+		if (inputValue.trim()) {
+			await sendMessage(inputValue);
+			setInputValue("");
+		}
+	};
+
+	return (
+		<div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ">
+			<div className="max-w-6xl mx-auto p-4 pt-16">
+				<ThemeToggle />
+				<header className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-20 mb-8 p-4 text-center">
+					<h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+						Simple Translator App
+					</h1>
+					<p className="text-gray-600 dark:text-gray-300">
+						Send messages, get translations, and summaries in multiple languages
+					</p>
+				</header>
+				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-4 overflow-y-auto flex-1">
+					{messages.length === 0 ? (
+						<div className="h-full flex items-center justify-center">
+							<p className="text-gray-500 dark:text-gray-400 text-center">
+								Start a conversation by sending a message
+							</p>
+						</div>
+					) : (
+						<div className="space-y-4">
+							{messages.map((message) => (
+								<Message
+									key={message.id}
+									message={message}
+									onTranslate={translateMessage}
+									onSummarize={summarizeMessage}
+								/>
+							))}
+						</div>
+					)}
+				</div>
+				{error && (
+					<div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+						<p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+					</div>
+				)}
+				<div ref={messagesEndRef} />
+				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sticky bottom-0 z-10">
+					<div className="flex gap-2">
+						<div className="flex-1">
+							<MessageInput
+								value={inputValue}
+								onChange={setInputValue}
+								onSend={handleSendMessage}
+								isLoading={isLoading}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }
