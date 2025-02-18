@@ -6,7 +6,7 @@ import { ThemeToggle } from "./components/ui/theme-toggle";
 import { Message } from "./components/chat/chat-container";
 import { MessageInput } from "./components/chat/message-input";
 
-export default function App() {
+export default function Page() {
 	const [inputValue, setInputValue] = useState("");
 	const {
 		messages,
@@ -33,15 +33,32 @@ export default function App() {
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ">
 			<div className="max-w-6xl mx-auto p-4 pt-16">
-				<ThemeToggle />
-				<header className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-20 mb-8 p-4 text-center">
-					<h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-						Simple Translator App
-					</h1>
-					<p className="text-gray-600 dark:text-gray-300">
-						Send messages, get translations, and summaries in multiple languages
-					</p>
-				</header>
+				<div className="sm:hidden">
+					<ThemeToggle />
+					<header className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-20 mb-8 p-4 text-center">
+						<h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+							Simple Translator App
+						</h1>
+						<p className="text-gray-600 dark:text-gray-300">
+							Send messages, get translations, and summaries in multiple
+							languages
+						</p>
+					</header>
+				</div>
+				<div className="hidden sticky top-0 bg-gray-50 dark:bg-gray-900 z-20 mb-8 p-4 text-center border border-gray-500 rounded dark:border-gray-700 sm:inline-flex items-center justify-between w-full  ">
+					<div className="border border-gray-500 rounded dark:border-gray-700">
+						<ThemeToggle />
+					</div>
+					<header className="min-w-[-webkit-fill-available] ">
+						<h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+							Simple Translator App
+						</h1>
+						<p className="text-gray-600 dark:text-gray-300">
+							Send messages, get translations, and summaries in multiple
+							languages
+						</p>
+					</header>
+				</div>
 				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-4 overflow-y-auto flex-1">
 					{messages.length === 0 ? (
 						<div className="h-full flex items-center justify-center">

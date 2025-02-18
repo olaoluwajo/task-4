@@ -1,19 +1,17 @@
 export interface Message {
-	id: number;
+	id: string;
 	text: string;
-	sender: "user" | "assistant";
-	timestamp: string;
+	sender: string;
+	timestamp: number | string;
 	detectedLanguage?: string;
 	translation?: string;
 	summary?: string;
 	isTranslating?: boolean;
 	isSummarizing?: boolean;
 	error?: string;
+	translatedSummary?: string;
 }
-
 export interface Language {
 	code: string;
 	name: string;
 }
-
-
