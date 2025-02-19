@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Message as MessageType } from "@/app/lib/types";
 import { formatTimestamp } from "@/app/utils/helpers";
 import { LanguageSelector } from "./language-selector";
+import { Bot } from "lucide-react";
 
 interface MessageProps {
 	message: MessageType;
@@ -18,7 +19,6 @@ export const Message: React.FC<MessageProps> = ({
 	onTranslate,
 	onSummarize,
 }) => {
-	// console.log("MESSAGE", message);
 	const isUser = message.sender === "user";
 	const [targetLanguage, setTargetLanguage] = useState("es");
 	const [isTranslating, setIsTranslating] = useState(false);
@@ -62,13 +62,13 @@ export const Message: React.FC<MessageProps> = ({
 			>
 				<div
 					className={`
-            relative max-w-[80%] rounded-2xl p-4 
-            ${
-							isUser
-								? "bg-gradient-to-br from-blue-500 to-blue-600 text-white ml-auto rounded-br-none shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
-								: "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-bl-none shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
-						}
-          `}
+          relative max-w-[80%] rounded-2xl p-4 
+          ${
+						isUser
+							? "bg-gradient-to-br from-blue-500 to-blue-600 text-white ml-auto rounded-br-none shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+							: "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-bl-none shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+					}
+        `}
 				>
 					<div className="flex items-start justify-between gap-3">
 						<p
@@ -107,7 +107,7 @@ export const Message: React.FC<MessageProps> = ({
 									/>
 									<button
 										onClick={handleTranslateSummary}
-										className="mt-2 p-2 bg-blue-500 text-white rounded-lg text-xs  ml-3"
+										className="mt-2 p-2 bg-blue-500 text-white rounded-lg text-xs ml-3"
 									>
 										Translate Summary
 									</button>
@@ -137,7 +137,7 @@ export const Message: React.FC<MessageProps> = ({
 					) : (
 						<div className="mt-2 text-sm text-gray-300 dark:text-gray-300">
 							Your text is more than 150 characters and will need to be
-							sumarized
+							summarized
 						</div>
 					)}
 
@@ -150,21 +150,29 @@ export const Message: React.FC<MessageProps> = ({
 			</div>
 
 			{(isTranslating || isSummarizing) && (
-				<div className="flex justify-start mt-2">
-					<div
-						className={`
-              max-w-[75%] space-y-3 rounded-xl p-4
-              bg-gradient-to-br from-teal-500 to-teal-600 text-white
-              shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all
-            `}
-					>
-						<div className="flex items-center gap-2">
-							<div className="loading-spinner"></div>
-							<p className="text-sm">
-								{isSummarizing
-									? "Summarizing, please wait a moment..."
-									: "Translating, please wait a moment..."}
-							</p>
+				<div className="flex items-start gap-3">
+					<div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md">
+						<Bot className="w-5 h-5 text-white" />
+					</div>
+					<div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 animate-pulse bg-green-50 dark:bg-green-900/20 py-2 px-4 rounded-lg">
+						<span>
+							{isSummarizing
+								? "Bot is summarizing..."
+								: "Bot is translating..."}
+						</span>
+						<div className="flex space-x-1">
+							<div
+								className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+								style={{ animationDelay: "0s" }}
+							/>
+							<div
+								className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+								style={{ animationDelay: "0.2s" }}
+							/>
+							<div
+								className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+								style={{ animationDelay: "0.4s" }}
+							/>
 						</div>
 					</div>
 				</div>
@@ -174,14 +182,10 @@ export const Message: React.FC<MessageProps> = ({
 				<div className={`flex justify-${isUser ? "start" : "end"} mt-2`}>
 					<div
 						className={`
-              max-w-[75%] space-y-3 rounded-xl p-4
-              ${
-								isUser
-									? "bg-gradient-to-br dark:from-purple-500 dark:to-purple-600 text-white    from-teal-500 to-teal-600 "
-									: "bg-gradient-to-br from-teal-500 to-teal-600 text-white"
-							}
-              shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all
-            `}
+            max-w-[75%] space-y-3 rounded-xl p-4
+            bg-gradient-to-br from-green-500 to-green-600 text-white
+            shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all
+          `}
 					>
 						{message.translation && (
 							<div className="animate-fadeIn">
