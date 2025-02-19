@@ -166,7 +166,7 @@ export const useChat = () => {
 							`Translation from ${sourceLanguageName} to ${targetLanguageName} is not supported.`
 						);
 						setError(
-							`Translation from ${sourceLanguageName} to ${targetLanguageName} is not supported.`
+							`Translation from ${sourceLanguageName} to ${targetLanguageName} is not supported in this browser.`
 						);
 						return;
 					}
