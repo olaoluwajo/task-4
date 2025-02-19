@@ -41,6 +41,7 @@ export const useChat = () => {
 
 			const detector = await window.ai.languageDetector.create();
 			const result = await detector.detect(text);
+			// console.log("Language Detection Result:", result);
 			return result[0];
 		} catch (error) {
 			console.error("Error during language detection:", error);
@@ -54,8 +55,7 @@ export const useChat = () => {
 
 		try {
 			const detectionResult = await detectLanguage(text);
-			const detectedLanguageCode =
-				detectionResult?.detectedLanguage || "Unknown";
+			const detectedLanguageCode = detectionResult?.detectedLanguage || "en";
 			const confidence = detectionResult?.confidence || 0;
 
 			const languageMap: { [key: string]: string } = {
@@ -75,9 +75,10 @@ export const useChat = () => {
 				text,
 				sender: "user",
 				timestamp: new Date().toISOString(),
-				detectedLanguage: `(${(confidence * 100).toFixed(
+				detectedLanguage: detectedLanguageCode,
+				detectedLanguageName: `i am (${(confidence * 100).toFixed(
 					1
-				)}% confidence) sure that this is ${detectedLanguageName}`,
+				)}% ) sure that this is ${detectedLanguageName}`,
 				isTranslating: text.length <= 150,
 				isSummarizing: text.length > 150,
 			};
@@ -86,7 +87,7 @@ export const useChat = () => {
 			if (text.length > 150) {
 				await summarizeMessage(userMessage.id);
 			} else {
-				await translateMessage(userMessage.id, "es"); // Default to Spanish
+				await translateMessage(userMessage.id, "es");
 			}
 		} catch (error: any) {
 			console.error("Error during summarization or translation:", error);
@@ -110,23 +111,56 @@ export const useChat = () => {
 
 				const text = textToTranslate || message.text;
 
+				const detectedLanguageCode = message.detectedLanguage || "en";
+
+				// console.log(
+				// 	"Detected Language Code in translateMessage:",
+				// 	detectedLanguageCode
+				// );
+				// console.log("Target Language:", targetLang);
+
+				if (detectedLanguageCode === targetLang) {
+					// console.log(
+					// 	"Detected language matches target language. Skipping translation."
+					// );
+					setMessages((prev) =>
+						prev.map((msg) =>
+							msg.id === messageId
+								? {
+										...msg,
+										isTranslating: false,
+										translation: textToTranslate ? msg.translation : text,
+										translatedSummary: textToTranslate
+											? text
+											: msg.translatedSummary,
+								  }
+								: msg
+						)
+					);
+					return;
+				}
+
 				if (isTranslatorSupported) {
 					const capabilities = await window.ai.translator.capabilities();
+					// console.log("Translation Capabilities:", capabilities);
+
 					const languagePairStatus = capabilities.languagePairAvailable(
-						"en",
+						detectedLanguageCode,
 						targetLang
 					);
 
+					// console.log("Language Pair Status:", languagePairStatus);
+
 					if (languagePairStatus === "no") {
 						console.warn(
-							`Translation from English to ${targetLang} is not supported.`
+							`Translation from ${detectedLanguageCode} to ${targetLang} is not supported.`
 						);
 						setError(`Translation to ${targetLang} is not supported.`);
 						return;
 					}
 
 					const translator = await window.ai.translator.create({
-						sourceLanguage: "en",
+						sourceLanguage: detectedLanguageCode,
 						targetLanguage: targetLang,
 					});
 

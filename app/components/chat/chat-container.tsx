@@ -83,12 +83,11 @@ export const Message: React.FC<MessageProps> = ({
 						</span>
 					</div>
 
-					{message.detectedLanguage && (
+					{message.detectedLanguageName && (
 						<div className="mt-2 text-xs font-medium inline-block px-2 py-1 rounded-full bg-black/10 dark:bg-white/10">
-							I&apos;m {message.detectedLanguage}.
+							{message.detectedLanguageName}
 						</div>
 					)}
-
 					{isUser && (
 						<div className="mt-2">
 							{message.text.length > 150 && !message.summary && (

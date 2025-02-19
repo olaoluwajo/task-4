@@ -2,14 +2,15 @@ export interface Message {
 	id: string;
 	text: string;
 	sender: string;
-	timestamp: number | string;
+	timestamp: string;
 	detectedLanguage?: string;
-	translation?: string;
-	summary?: string;
+	detectedLanguageName?: string;
 	isTranslating?: boolean;
 	isSummarizing?: boolean;
-	error?: string;
+	translation?: string;
 	translatedSummary?: string;
+	summary?: string;
+	error?: string;
 }
 export interface Language {
 	code: string;
