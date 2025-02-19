@@ -5,6 +5,7 @@ import { ThemeToggle } from "./components/ui/theme-toggle";
 import { Message } from "./components/chat/chat-container";
 import { MessageInput } from "./components/chat/message-input";
 import { User, Bot } from "lucide-react";
+import WelcomeScreen from "./components/welcome-screen";
 
 export default function Page() {
 	const [inputValue, setInputValue] = useState("");
@@ -78,20 +79,15 @@ export default function Page() {
 				</div>
 			</div>
 
-			<div className="flex-1 overflow-hidden relative max-w-6xl w-full mx-auto p-4">
+			<div
+				className={`${
+					messages.length === 0 && "shadow-lg  rounded-2xl  my-2"
+				} flex-1 overflow-hidden relative max-w-6xl w-full mx-auto p-4`}
+			>
 				<div className="h-full bg-transparent backdrop-blur-md rounded-2xl  border-gray-200 dark:border-gray-700">
 					<div className="h-full overflow-y-auto p-6 custom-scrollbar">
 						{messages.length === 0 ? (
-							<div className="h-full flex items-center justify-center">
-								<div className="text-center space-y-4">
-									<div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto flex items-center justify-center">
-										<Bot className="w-8 h-8 text-blue-500" />
-									</div>
-									<p className="text-gray-500 dark:text-gray-400">
-										Start a conversation by sending a message
-									</p>
-								</div>
-							</div>
+							<WelcomeScreen />
 						) : (
 							<div className="space-y-6">
 								{messages.map((message, index) => (
