@@ -17,6 +17,10 @@ export const useChat = () => {
 
 	const isBrowser = typeof window !== "undefined";
 
+	const clearError = () => {
+		setError(null);
+	};
+
 	const isSummarizerSupported =
 		isBrowser && "ai" in window && "summarizer" in (window.ai as any);
 
@@ -56,7 +60,7 @@ export const useChat = () => {
 		try {
 			const detectionResult = await detectLanguage(text);
 			const detectedLanguageCode = detectionResult?.detectedLanguage || "en";
-			const confidence = detectionResult?.confidence || 0;
+			// const confidence = detectionResult?.confidence || 0;
 
 			const languageMap: { [key: string]: string } = {
 				en: "English",
@@ -76,19 +80,17 @@ export const useChat = () => {
 				sender: "user",
 				timestamp: new Date().toISOString(),
 				detectedLanguage: detectedLanguageCode,
-				detectedLanguageName: `i am (${(confidence * 100).toFixed(
-					1
-				)}% ) sure that this is ${detectedLanguageName}`,
+				detectedLanguageName: ` ${detectedLanguageName}`,
 				isTranslating: text.length <= 150,
 				isSummarizing: text.length > 150,
 			};
 			setMessages((prev) => [...prev, userMessage]);
 
-			if (text.length > 150) {
-				await summarizeMessage(userMessage.id);
-			} else {
-				await translateMessage(userMessage.id, "es");
-			}
+			// if (text.length > 150) {
+			// 	await summarizeMessage(userMessage.id);
+			// } else {
+			// 	await translateMessage(userMessage.id, "es");
+			// }
 		} catch (error: any) {
 			console.error("Error during summarization or translation:", error);
 			setError(error.message || "Failed to process message");
@@ -254,6 +256,7 @@ export const useChat = () => {
 		messages,
 		isLoading,
 		error,
+		clearError,
 		sendMessage,
 		translateMessage,
 		summarizeMessage,

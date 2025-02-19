@@ -23,6 +23,9 @@ export const Message: React.FC<MessageProps> = ({
 	const [targetLanguage, setTargetLanguage] = useState("es");
 	const [isTranslating, setIsTranslating] = useState(false);
 	const [isSummarizing, setIsSummarizing] = useState(false);
+	const [currentTranslationId, setCurrentTranslationId] = useState<
+		string | null
+	>(null);
 
 	const languageMap: { [key: string]: string } = {
 		en: "English",
@@ -33,8 +36,12 @@ export const Message: React.FC<MessageProps> = ({
 		tr: "Turkish",
 	};
 
+	const isNotEnglish = message.detectedLanguage !== "en";
+	const isLongMessage = message.text.length > 150;
+
 	const handleSummarize = async () => {
 		setIsSummarizing(true);
+		setCurrentTranslationId(message.id); 
 		await onSummarize(message.id);
 		setIsSummarizing(false);
 	};
@@ -42,6 +49,7 @@ export const Message: React.FC<MessageProps> = ({
 	const handleTranslateSummary = async () => {
 		if (message.summary) {
 			setIsTranslating(true);
+			setCurrentTranslationId(message.id);
 			await onTranslate(message.id, targetLanguage, message.summary);
 			setIsTranslating(false);
 		}
@@ -49,12 +57,21 @@ export const Message: React.FC<MessageProps> = ({
 
 	const handleTranslate = async () => {
 		setIsTranslating(true);
+		setCurrentTranslationId(message.id);
+		message.translation = "";
 		await onTranslate(message.id, targetLanguage);
 		setIsTranslating(false);
 	};
 
+	const handleTranslateToEnglish = async () => {
+		setIsTranslating(true);
+		setCurrentTranslationId(message.id);
+		await onTranslate(message.id, "en");
+		setIsTranslating(false);
+	};
+
 	return (
-		<div className="w-full mb-6">
+		<div className="w-full mb-6 text-sm">
 			<div
 				className={`flex ${
 					isUser ? "justify-end" : "justify-start"
@@ -65,9 +82,9 @@ export const Message: React.FC<MessageProps> = ({
           relative max-w-[80%] rounded-2xl p-4 
           ${
 						isUser
-							? "bg-gradient-to-br from-blue-500 to-blue-600 text-white ml-auto rounded-br-none shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
-							: "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-bl-none shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
-					}
+							? "bg-gradient-to-br from-blue-500 to-blue-600 text-white ml-auto rounded-br-none"
+							: "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-bl-none"
+					} shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all
         `}
 				>
 					<div className="flex items-start justify-between gap-3">
@@ -83,117 +100,144 @@ export const Message: React.FC<MessageProps> = ({
 						</span>
 					</div>
 
-					{message.detectedLanguageName && (
-						<div className="mt-2 text-xs font-medium inline-block px-2 py-1 rounded-full bg-black/10 dark:bg-white/10">
-							{message.detectedLanguageName}
-						</div>
-					)}
-					{isUser && (
-						<div className="mt-2">
-							{message.text.length > 150 && !message.summary && (
-								<button
-									onClick={handleSummarize}
-									className="mt-2 p-2 bg-blue-500 text-white rounded-lg"
-								>
-									Summarize in English
-								</button>
-							)}
-							{message.summary && (
-								<>
-									<LanguageSelector
-										selectedLanguage={targetLanguage}
-										onChange={setTargetLanguage}
-									/>
-									<button
-										onClick={handleTranslateSummary}
-										className="mt-2 p-2 bg-blue-500 text-white rounded-lg text-xs ml-3"
-									>
-										Translate Summary
-									</button>
-								</>
-							)}
-							{message.text.length <= 150 && (
-								<>
-									<LanguageSelector
-										selectedLanguage={targetLanguage}
-										onChange={setTargetLanguage}
-									/>
-									<button
-										onClick={handleTranslate}
-										className="mt-2 p-2 bg-blue-500 text-white rounded-lg text-xs ml-3"
-									>
-										Translate
-									</button>
-								</>
-							)}
-						</div>
-					)}
-
-					{message.text.length <= 150 ? (
-						<div className="mt-2 text-sm text-gray-300 dark:text-gray-300">
-							Your text is below 150 characters and can easily be translated.
-						</div>
-					) : (
-						<div className="mt-2 text-sm text-gray-300 dark:text-gray-300">
-							Your text is more than 150 characters and will need to be
-							summarized
-						</div>
-					)}
-
-					{message.error && (
-						<div className="mt-3 p-3 bg-red-500/20 rounded-lg text-sm border border-red-500/30">
-							{message.error}
-						</div>
-					)}
+					<div className="mt-2 text-xs opacity-75">
+						{message.text.length} characters
+					</div>
 				</div>
 			</div>
 
-			{(isTranslating || isSummarizing) && (
-				<div className="flex items-start gap-3">
-					<div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md">
-						<Bot className="w-5 h-5 text-white" />
-					</div>
-					<div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 animate-pulse bg-green-50 dark:bg-green-900/20 py-2 px-4 rounded-lg">
-						<span>
-							{isSummarizing
-								? "Bot is summarizing..."
-								: "Bot is translating..."}
-						</span>
-						<div className="flex space-x-1">
-							<div
-								className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-								style={{ animationDelay: "0s" }}
+			{isUser && (
+				<div className="mt-2 flex flex-col items-end gap-2">
+					<div className="flex items-center gap-2">
+						{message.detectedLanguageName && (
+							<div className=" text-[10px] font-medium rounded-full dark:text-white text-gray-900 ">
+								{message.detectedLanguageName}
+							</div>
+						)}
+						{!(
+							(isNotEnglish && isLongMessage) ||
+							(isLongMessage && !message.summary)
+						) && (
+							<LanguageSelector
+								selectedLanguage={targetLanguage}
+								onChange={(lang) => {
+									setTargetLanguage(lang);
+									message.translation = "";
+								}}
 							/>
-							<div
-								className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-								style={{ animationDelay: "0.2s" }}
-							/>
-							<div
-								className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-								style={{ animationDelay: "0.4s" }}
-							/>
-						</div>
+						)}
+						{isNotEnglish && isLongMessage ? (
+							<>
+								<p className="text-xs text-gray-500 dark:text-gray-400">
+									This message cannot be summarized from{" "}
+									{message.detectedLanguageName}.Please translate to English and re-send.
+								</p>
+								<button
+									onClick={handleTranslateToEnglish}
+									className="p-1 bg-blue-500 text-white rounded-lg text-xs"
+									disabled={isTranslating}
+								>
+									Translate to English
+								</button>
+							</>
+						) : isNotEnglish && !isLongMessage ? (
+							<button
+								onClick={handleTranslate}
+								className="p-1 bg-blue-500 text-white rounded-lg text-xs"
+								disabled={isTranslating}
+							>
+								Translate
+							</button>
+						) : (
+							<>
+								{message.text.length > 150 ? (
+									<>
+										{!message.summary && (
+											<>
+												<p className="text-xs text-gray-500 dark:text-gray-400">
+													This message is too long, please summarize
+												</p>
+												<button
+													onClick={handleSummarize}
+													className="p-1 bg-blue-500 text-white rounded-lg text-xs cursor-pointer"
+													disabled={isSummarizing}
+												>
+													Summarize
+												</button>
+											</>
+										)}
+										{message.summary && (
+											<button
+												onClick={handleTranslateSummary}
+												className="p-1 bg-blue-500 text-white rounded-lg text-xs cursor-pointer"
+												disabled={isTranslating}
+											>
+												Translate Summary
+											</button>
+										)}
+									</>
+								) : (
+									<button
+										onClick={handleTranslate}
+										className="p-1 bg-blue-500 text-white rounded-lg text-xs"
+										disabled={isTranslating}
+									>
+										Translate
+									</button>
+								)}
+							</>
+						)}
 					</div>
 				</div>
 			)}
 
-			{(message.translation || message.summary) && (
-				<div className={`flex justify-${isUser ? "start" : "end"} mt-2`}>
-					<div
-						className={`
-            max-w-[75%] space-y-3 rounded-xl p-4
-            bg-gradient-to-br from-green-500 to-green-600 text-white
-            shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all
-          `}
-					>
+			{(isTranslating || isSummarizing) &&
+				currentTranslationId === message.id && (
+					<div className="flex items-start gap-3 mt-4">
+						<div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md">
+							<Bot className="w-5 h-5 text-white" />
+						</div>
+						<div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 animate-pulse bg-green-50 dark:bg-green-900/20 py-2 px-4 rounded-lg">
+							<span>
+								{isSummarizing
+									? "Bot is summarizing..."
+									: "Bot is translating..."}
+							</span>
+							<div className="flex space-x-1">
+								<div
+									className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+									style={{ animationDelay: "0s" }}
+								/>
+								<div
+									className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+									style={{ animationDelay: "0.2s" }}
+								/>
+								<div
+									className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+									style={{ animationDelay: "0.4s" }}
+								/>
+							</div>
+						</div>
+					</div>
+				)}
+
+			{(message.translation || message.summary) && !isTranslating && (
+				<div className={`flex justify-${isUser ? "start" : "end"} mt-4`}>
+					<div className="max-w-[75%] space-y-3 rounded-xl p-4 bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
 						{message.translation && (
 							<div className="animate-fadeIn">
 								<p className="text-sm font-medium mb-1 text-white/80">
-									Translation to {languageMap[targetLanguage]}
+									Translation to
+									<span className="ml-1">
+										{currentTranslationId === message.id && isNotEnglish
+											? "English"
+											: languageMap[targetLanguage]}
+									</span>
 								</p>
 								<p className="text-sm leading-relaxed">{message.translation}</p>
 							</div>
 						)}
+
 						{message.summary && (
 							<div className="animate-fadeIn pt-3 border-t border-white/20">
 								<p className="text-sm font-medium mb-1 text-white/80">
@@ -201,8 +245,8 @@ export const Message: React.FC<MessageProps> = ({
 								</p>
 								<p className="text-sm leading-relaxed">{message.summary}</p>
 								{message.translatedSummary && (
-									<div className="mt-2">
-										<p className="text-sm font-medium mb-1 text-white/80">
+									<div className="mt-2  bg-gradient-to-br from-green-700 to-green-600 p-2 rounded">
+										<p className="text-sm font-medium mb-1 text-white/80 ">
 											Translated Summary to {languageMap[targetLanguage]}
 										</p>
 										<p className="text-sm leading-relaxed">

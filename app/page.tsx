@@ -13,6 +13,7 @@ export default function Page() {
 		messages,
 		isLoading,
 		error,
+		clearError,
 		sendMessage,
 		translateMessage,
 		summarizeMessage,
@@ -23,6 +24,16 @@ export default function Page() {
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
+
+	useEffect(() => {
+		if (error) {
+			const timer = setTimeout(() => {
+				clearError();
+			}, 3000);
+
+			return () => clearTimeout(timer);
+		}
+	}, [clearError, error]);
 
 	const handleSendMessage = async () => {
 		if (inputValue.trim()) {
@@ -68,8 +79,8 @@ export default function Page() {
 			</div>
 
 			<div className="flex-1 overflow-hidden relative max-w-6xl w-full mx-auto p-4">
-				<div className="h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-					<div className="h-full overflow-y-auto p-6">
+				<div className="h-full bg-transparent backdrop-blur-md rounded-2xl  border-gray-200 dark:border-gray-700">
+					<div className="h-full overflow-y-auto p-6 custom-scrollbar">
 						{messages.length === 0 ? (
 							<div className="h-full flex items-center justify-center">
 								<div className="text-center space-y-4">
@@ -99,7 +110,7 @@ export default function Page() {
 											}`}
 										>
 											<div
-												className={`w-8 h-8 rounded-full bg-gradient-to-br ${
+												className={`w-8 h-8 rounded-full bg-gradient-to-br hidden sm:inline-flex ${
 													message.sender === "user"
 														? "from-blue-500 to-blue-600"
 														: "from-green-500 to-green-600"
@@ -170,6 +181,33 @@ export default function Page() {
 					/>
 				</div>
 			</div>
+
+			<style jsx global>{`
+				.custom-scrollbar::-webkit-scrollbar {
+					width: 10px;
+				}
+
+				.custom-scrollbar::-webkit-scrollbar-track {
+					background: transparent;
+					border-radius: 10px;
+				}
+
+				.custom-scrollbar::-webkit-scrollbar-thumb {
+					background: #888;
+					border-radius: 10px;
+					border: 2px solid transparent;
+					background-clip: content-box;
+				}
+
+				.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+					background: #555;
+				}
+
+				.custom-scrollbar {
+					scrollbar-width: thin;
+					scrollbar-color: #88888849 transparent;
+				}
+			`}</style>
 		</div>
 	);
 }

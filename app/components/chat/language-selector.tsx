@@ -22,7 +22,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 		<select
 			value={selectedLanguage}
 			onChange={(e) => onChange(e.target.value)}
-			className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white text-xs"
+			className="p-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white text-xs"
 		>
 			{languages.map((lang) => (
 				<option key={lang.code} value={lang.code}>
