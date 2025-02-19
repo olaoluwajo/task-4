@@ -117,7 +117,7 @@ const WelcomeScreen = () => {
 
 				<div className="relative pt-2">
 					<p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 animate-float px-4">
-						Start a conversation by typing your message below ↓
+						Start a conversation by typing your message below 
 					</p>
 					<div className="absolute left-1/2 transform -translate-x-1/2 mt-2">
 						<div className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce">↓</div>

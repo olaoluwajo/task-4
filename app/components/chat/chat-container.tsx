@@ -20,7 +20,7 @@ export const Message: React.FC<MessageProps> = ({
 	onSummarize,
 }) => {
 	const isUser = message.sender === "user";
-	const [targetLanguage, setTargetLanguage] = useState("es");
+	const [targetLanguage, setTargetLanguage] = useState("");
 	const [isTranslating, setIsTranslating] = useState(false);
 	const [isSummarizing, setIsSummarizing] = useState(false);
 	const [currentTranslationId, setCurrentTranslationId] = useState<
@@ -41,7 +41,7 @@ export const Message: React.FC<MessageProps> = ({
 
 	const handleSummarize = async () => {
 		setIsSummarizing(true);
-		setCurrentTranslationId(message.id); 
+		setCurrentTranslationId(message.id);
 		await onSummarize(message.id);
 		setIsSummarizing(false);
 	};
@@ -99,10 +99,6 @@ export const Message: React.FC<MessageProps> = ({
 							{formatTimestamp(String(message.timestamp))}
 						</span>
 					</div>
-
-					<div className="mt-2 text-xs opacity-75">
-						{message.text.length} characters
-					</div>
 				</div>
 			</div>
 
@@ -124,13 +120,17 @@ export const Message: React.FC<MessageProps> = ({
 									setTargetLanguage(lang);
 									message.translation = "";
 								}}
+								disabledLanguages={
+									message.detectedLanguage ? [message.detectedLanguage] : []
+								}
 							/>
 						)}
 						{isNotEnglish && isLongMessage ? (
 							<>
 								<p className="text-xs text-gray-500 dark:text-gray-400">
 									This message cannot be summarized from{" "}
-									{message.detectedLanguageName}.Please translate to English and re-send.
+									{message.detectedLanguageName}.Please translate to English and
+									re-send.
 								</p>
 								<button
 									onClick={handleTranslateToEnglish}

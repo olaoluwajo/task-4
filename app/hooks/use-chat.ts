@@ -52,6 +52,14 @@ export const useChat = () => {
 			return null;
 		}
 	};
+	const languageMap: { [key: string]: string } = {
+		en: "English",
+		es: "Spanish",
+		fr: "French",
+		pt: "Portuguese",
+		ru: "Russian",
+		tr: "Turkish",
+	};
 
 	const sendMessage = async (text: string) => {
 		setIsLoading(true);
@@ -61,15 +69,6 @@ export const useChat = () => {
 			const detectionResult = await detectLanguage(text);
 			const detectedLanguageCode = detectionResult?.detectedLanguage || "en";
 			// const confidence = detectionResult?.confidence || 0;
-
-			const languageMap: { [key: string]: string } = {
-				en: "English",
-				es: "Spanish",
-				fr: "French",
-				pt: "Portuguese",
-				ru: "Russian",
-				tr: "Turkish",
-			};
 
 			const detectedLanguageName =
 				languageMap[detectedLanguageCode] || detectedLanguageCode;
@@ -101,6 +100,11 @@ export const useChat = () => {
 
 	const translateMessage = useCallback(
 		async (messageId: string, targetLang: string, textToTranslate?: string) => {
+			if (!targetLang || targetLang === "") {
+				setError("Please select a language to translate to.");
+				return;
+			}
+
 			setMessages((prev) =>
 				prev.map((msg) =>
 					msg.id === messageId ? { ...msg, isTranslating: true } : msg
@@ -154,10 +158,16 @@ export const useChat = () => {
 					// console.log("Language Pair Status:", languagePairStatus);
 
 					if (languagePairStatus === "no") {
+						const sourceLanguageName =
+							languageMap[detectedLanguageCode] || detectedLanguageCode;
+						const targetLanguageName = languageMap[targetLang] || targetLang;
+
 						console.warn(
-							`Translation from ${detectedLanguageCode} to ${targetLang} is not supported.`
+							`Translation from ${sourceLanguageName} to ${targetLanguageName} is not supported.`
 						);
-						setError(`Translation to ${targetLang} is not supported.`);
+						setError(
+							`Translation from ${sourceLanguageName} to ${targetLanguageName} is not supported.`
+						);
 						return;
 					}
 
