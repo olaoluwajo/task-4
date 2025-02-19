@@ -40,6 +40,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 							type="text"
 							value={value}
 							onChange={(e) => onChange(e.target.value)}
+							onKeyPress={handleKeyPress}
 							placeholder="Type a message..."
 							className="w-full sm:hidden rounded-lg p-3 pr-12 bg-gray-100 dark:bg-gray-700
                 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
